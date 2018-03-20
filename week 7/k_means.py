@@ -17,22 +17,34 @@ class KMeans(object):
     - epsilon: (float) lower limit to stop cluster.
     """
     # save the change of centroids position after updating
+    num_train = X.shape[0]
     change = np.ones(self.num_clusters)
-
+    self.centroids = X[np.random.choice(X.shape[0], self.num_clusters)]
+    cluster = {}
     while (all(num > epsilon for num in change)):
         #########################################################################
         # TODO:                                                                 #
         # Compute the l2 distance between all test points and all cluster       #
         # centroid then assign them to the nearest centroid.                    #
         #########################################################################
-        pass
+        label = self.predict(X, num_loops = 2)        
         #########################################################################
         # TODO:                                                                 #
         # After assigning data to the nearest centroid, recompute the centroids #
         # then calculate the differrent between old centroids and the new one   #
         #########################################################################
         new_centroids = np.zeros(self.centroids.shape)
-        break
+        cluster_arg = np.zeros((self.num_clusters, 1))
+        
+        
+        for i in range(num_train):
+            cluster_label = int(label[i])
+            new_centroids[cluster_label] += X[i]
+            cluster_arg[cluster_label][0] += 1
+        new_centroids = new_centroids / cluster_arg
+        
+        change = np.linalg.norm(new_centroids - self.centroids, axis = 1)
+        self.centroids = new_centroids
         pass
         #########################################################################
         #                         END OF YOUR CODE                              #
@@ -59,8 +71,8 @@ class KMeans(object):
       dists = self.compute_distances_two_loops(X)
     else:
       raise ValueError('Invalid value {} for num_loops'.format(num_loops))
-
-    return self.predict_clusters(dists)
+    
+    return self.predict_labels(dists)
 
   def compute_distances_two_loops(self, X):
     """
@@ -85,7 +97,7 @@ class KMeans(object):
         # cluster centroid, and store the result in dists[i, j]. You should #
         # not use a loop over dimension.                                    #
         #####################################################################
-        pass
+        dists[i][j] = np.linalg.norm(X[i] - self.centroids[j])
         #####################################################################
         #                       END OF YOUR CODE                            #
         #####################################################################
@@ -106,7 +118,7 @@ class KMeans(object):
       # Compute the l2 distance between the ith test point and all cluster  #
       # centroids, and store the result in dists[i, :].                     #
       #######################################################################
-      pass
+      dists[i, :] = np.linalg.norm(X[i] - self.centroids, axis = 1)
       #######################################################################
       #                         END OF YOUR CODE                            #
       #######################################################################
@@ -154,6 +166,7 @@ class KMeans(object):
     """
     num_test = dists.shape[0]
     y_pred = np.zeros(num_test)
+    print
     for i in range(num_test):
       # A list of length k storing the labels of the k nearest neighbors to
       # the ith test point.
@@ -164,10 +177,9 @@ class KMeans(object):
       # testing point.                                                        #
       # Hint: Look up the function numpy.argsort.                             #
       #########################################################################
-      pass
+      closest_y = np.argsort(dists[i])
+      y_pred[i] = closest_y[0]
       #########################################################################
       #                           END OF YOUR CODE                            # 
       #########################################################################
-
     return y_pred
-
